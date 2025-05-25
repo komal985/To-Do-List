@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>To-Do List App</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    color: #333;
+  }
+
+  #app {
+    background: white;
+    width: 100%;
+    max-width: 480px;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    padding: 2rem 2.5rem 3rem;
+  }
+
+  h1 {
+    font-weight: 600;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    color: #4a90e2;
+  }
+
+  form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  form input[type="text"] {
+    flex: 1;
+    padding: 0.65rem 1rem;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s;
+  }
+
+  form input[type="text"]:focus {
+    border-color: #4a90e2;
+    outline: none;
+  }
+
+  form select {
+    width: 130px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    padding: 0.65rem 0.8rem;
+    background: white;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s;
+  }
+
+  form select:focus {
+    border-color: #4a90e2;
+    outline: none;
+  }
+
+  form button {
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.65rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+
+  form button:hover {
+    background-color: #357ABD;
+  }
+
+  ul#task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  li.task-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    border-radius: 8px;
+    border-left: 6px solid transparent;
+    background: #fafafa;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+    transition: background-color 0.3s, border-color 0.3s;
+  }
+
+  li.task-item.low {
+    border-left-color: #a8d5a2;
+  }
+  li.task-item.medium {
+    border-left-color: #f0c419;
+  }
+  li.task-item.high {
+    border-left-color: #e74c3c;
+  }
+
+  li.task-item.completed {
+    background-color: #d7e8d9;
+    text-decoration: line-through;
+    color: #777;
+  }
+
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin-right: 1rem;
+    cursor: pointer;
+  }
+
+  span.task-text {
+    flex: 1;
+    font-size: 1rem;
+    user-select: none;
+    word-break: break-word;
+  }
+
+  span.task-text[contenteditable="true"] {
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    border: 2px solid #4a90e2;
+    background: #eef5fb;
+    user-select: text;
+    outline: none;
+    cursor: text;
+  }
+
+  .task-actions {
+    display: flex;
+    gap: 0.6rem;
+  }
+
+  button.action-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #888;
+    font-size: 1.25rem;
+    padding: 0.15rem 0.3rem;
+    border-radius: 6px;
+    transition: background-color 0.3s, color 0.3s;
+  }
+
+  button.action-btn:hover {
+    background-color: #4a90e2;
+    color: white;
+  }
+
+  /* Tooltip for buttons */
+  button.action-btn[title] {
+    position: relative;
+  }
+  button.action-btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    top: -1.8rem;
+    right: 50%;
+    transform: translateX(50%);
+    background: #333;
+    color: white;
+    font-size: 0.75rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  @media (max-width: 480px) {
+    #app {
+      padding: 1.5rem 1.5rem 2.5rem;
+      max-width: 100%;
+    }
+
+    form select {
+      width: 100px;
+    }
+
+    button.action-btn {
+      font-size: 1.1rem;
+    }
+  }
+</style>
+</head>
+<body>
+<div id="app" role="main" aria-label="To-Do List Application">
+  <h1>To-Do List</h1>
+  <form id="task-form" aria-label="Add new task form">
+    <input id="task-input" type="text" placeholder="Add a new task..." aria-label="Task description" required />
+    <select id="priority-select" aria-label="Select task priority">
+      <option value="low" selected>Low Priority</option>
+      <option value="medium">Medium Priority</option>
+      <option value="high">High Priority</option>
+    </select>
+    <button type="submit" aria-label="Add task">Add</button>
+  </form>
+  <ul id="task-list" aria-live="polite" aria-relevant="additions removals"></ul>
+</div>
+
+<script>
+  // Data structure for tasks
+  let tasks = [];
+
+  // Elements
+  const form = document.getElementById('task-form');
+  const taskInput = document.getElementById('task-input');
+  const prioritySelect = document.getElementById('priority-select');
+  const taskList = document.getElementById('task-list');
+
+  // Load tasks from localStorage
+  function loadTasks() {
+    const storedTasks = localStorage.getItem('todoTasks');
+    if (storedTasks) {
+      try {
+        tasks = JSON.parse(storedTasks);
+      } catch {
+        tasks = [];
+      }
+    }
+  }
+
+  // Save tasks to localStorage
+  function saveTasks() {
+    localStorage.setItem('todoTasks', JSON.stringify(tasks));
+  }
+
+  // Render the task list
+  function renderTasks() {
+    taskList.innerHTML = '';
+    if (tasks.length === 0) {
+      const noTasksElem = document.createElement('li');
+      noTasksElem.textContent = 'No tasks yet. Add your first task!';
+      noTasksElem.style.textAlign = 'center';
+      noTasksElem.style.padding = '1rem';
+      noTasksElem.style.color = '#777';
+      taskList.appendChild(noTasksElem);
+      return;
+    }
+
+    tasks.forEach((task, index) => {
+      const li = document.createElement('li');
+      li.className = `task-item ${task.completed ? 'completed' : ''} ${task.priority}`;
+      li.setAttribute('data-index', index);
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = task.completed;
+      checkbox.setAttribute('aria-label', task.completed ? `Mark task "${task.text}" as incomplete` : `Mark task "${task.text}" as complete`);
+      checkbox.addEventListener('change', () => {
+        tasks[index].completed = checkbox.checked;
+        saveTasks();
+        renderTasks();
+      });
+
+      const taskText = document.createElement('span');
+      taskText.className = 'task-text';
+      taskText.textContent = task.text;
+      taskText.tabIndex = 0;
+
+      // Editing logic
+      taskText.addEventListener('dblclick', () => {
+        if (task.completed) return;
+        taskText.contentEditable = true;
+        taskText.focus();
+        placeCaretAtEnd(taskText);
+      });
+
+      taskText.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          taskText.blur();
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          taskText.textContent = task.text;
+          taskText.blur();
+        }
+      });
+
+      taskText.addEventListener('blur', () => {
+        if (taskText.contentEditable === 'true') {
+          let newText = taskText.textContent.trim();
+          if (newText.length === 0) {
+            alert("Task description can't be empty.");
+            taskText.textContent = task.text;
+          } else {
+            tasks[index].text = newText;
+            saveTasks();
+          }
+          taskText.contentEditable = false;
+          renderTasks();
+        }
+      });
+
+      // Actions container
+      const actionsDiv = document.createElement('div');
+      actionsDiv.className = 'task-actions';
+
+      // Edit button (alternative to double-click)
+      const editBtn = document.createElement('button');
+      editBtn.type = 'button';
+      editBtn.className = 'action-btn';
+      editBtn.title = 'Edit task';
+      editBtn.innerHTML = '✏️';
+      editBtn.addEventListener('click', () => {
+        if (task.completed) return;
+        taskText.contentEditable = true;
+        taskText.focus();
+        placeCaretAtEnd(taskText);
+      });
+
+      // Delete button
+      const delBtn = document.createElement('button');
+      delBtn.type = 'button';
+      delBtn.className = 'action-btn';
+      delBtn.title = 'Delete task';
+      delBtn.innerHTML = '🗑️';
+      delBtn.addEventListener('click', () => {
+        if (confirm(`Delete task "${task.text}"?`)) {
+          tasks.splice(index, 1);
+          saveTasks();
+          renderTasks();
+        }
+      });
+
+      actionsDiv.appendChild(editBtn);
+      actionsDiv.appendChild(delBtn);
+
+      li.appendChild(checkbox);
+      li.appendChild(taskText);
+      li.appendChild(actionsDiv);
+
+      taskList.appendChild(li);
+    });
+  }
+
+  // Helper function: place caret at end of editable element
+  function placeCaretAtEnd(el) {
+    el.focus();
+    if (typeof window.getSelection != "undefined"
+        && typeof document.createRange != "undefined") {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      range.collapse(false);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
+  }
+
+  // Add new task from form submission
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    let newText = taskInput.value.trim();
+    if (newText.length === 0) {
+      alert("Please enter a task description.");
+      return;
+    }
+    const priority = prioritySelect.value;
+    tasks.push({ text: newText, completed: false, priority });
+    saveTasks();
+    renderTasks();
+    form.reset();
+    taskInput.focus();
+  });
+
+  // Initial load
+  loadTasks();
+  renderTasks();
+</script>
+</body>
+</html>
+
